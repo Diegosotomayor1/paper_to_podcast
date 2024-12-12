@@ -4,9 +4,8 @@ import os
 import glob
 import re
 
-
 def generate_host(text: str, client, output_dir: str):
-    now = datetime.datetime.now()
+    now = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     response = client.audio.speech.create(
         model="tts-1",
         voice="alloy",
@@ -14,9 +13,8 @@ def generate_host(text: str, client, output_dir: str):
     )
     return response.stream_to_file(f"./{output_dir}/host_{now}.mp3")
 
-
 def generate_expert(text: str, client, output_dir: str):
-    now = datetime.datetime.now()
+    now = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     response = client.audio.speech.create(
         model="tts-1",
         voice="fable",
@@ -24,16 +22,14 @@ def generate_expert(text: str, client, output_dir: str):
     )
     return response.stream_to_file(f"./{output_dir}/expert_{now}.mp3")
 
-
 def generate_learner(text, client, output_dir):
-    now = datetime.datetime.now()
+    now = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     response = client.audio.speech.create(
         model="tts-1",
         voice="echo",
         input=text,
     )
     return response.stream_to_file(f"./{output_dir}/learner_{now}.mp3")
-
 
 def merge_mp3_files(directory_path, output_file):
     # Find all .mp3 files in the specified directory
@@ -43,8 +39,8 @@ def merge_mp3_files(directory_path, output_file):
     sorted_files = sorted(
         mp3_files,
         key=lambda x: datetime.datetime.strptime(
-            re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d+)", x).group(0),
-            "%Y-%m-%d %H:%M:%S.%f",
+            re.search(r"(\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2})", x).group(0),
+            "%Y-%m-%d_%H-%M-%S",
         ),
     )
 
@@ -59,7 +55,6 @@ def merge_mp3_files(directory_path, output_file):
     # Export the final merged audio
     merged_audio.export(output_file, format="mp3")
     print(f"Merged file saved as {output_file}")
-
 
 def generate_podcast(script, client):
     # create a new directory to store the audio files
@@ -83,4 +78,4 @@ def generate_podcast(script, client):
             generate_expert(text, client, output_dir)
 
     # Merge the audio files into a single podcast
-    merge_mp3_files(output_dir, f"podcast_{datetime.datetime.now()}.mp3")
+    merge_mp3_files(output_dir, f"podcast_{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.mp3")
