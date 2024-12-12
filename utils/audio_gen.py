@@ -26,14 +26,14 @@ def generate_learner(text, client, output_dir):
     now = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     response = client.audio.speech.create(
         model="tts-1",
-        voice="echo",
+        voice="nova",
         input=text,
     )
     return response.stream_to_file(f"./{output_dir}/learner_{now}.mp3")
 
 def merge_mp3_files(directory_path, output_file):
     # Find all .mp3 files in the specified directory
-    mp3_files = glob.glob(f"{directory_path}/*.mp3")
+    mp3_files = [os.path.basename(x) for x in glob.glob(f"./{directory_path}/*.mp3")]
 
     # Sort files by datetime extracted from filename
     sorted_files = sorted(
@@ -43,13 +43,12 @@ def merge_mp3_files(directory_path, output_file):
             "%Y-%m-%d_%H-%M-%S",
         ),
     )
-
     # Initialize an empty AudioSegment for merging
     merged_audio = AudioSegment.empty()
 
     # Merge each mp3 file in sorted order
     for file in sorted_files:
-        audio = AudioSegment.from_mp3(file)
+        audio = AudioSegment.from_mp3(f"./{directory_path}/{file}")
         merged_audio += audio
 
     # Export the final merged audio
